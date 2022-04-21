@@ -142,12 +142,18 @@ class Tree
   def level_order(queue = [@root], &block)
     return nil if queue.empty?
 
-    block.call(queue[0])
-    queue.push(queue[0].left) unless queue[0].left.nil?
-    queue.push(queue[0].right) unless queue[0].right.nil?
-    queue.shift
-    level_order(queue, &block)
-    queue
+    if block_given?
+      block.call(queue[0])
+      queue.push(queue[0].left) unless queue[0].left.nil?
+      queue.push(queue[0].right) unless queue[0].right.nil?
+      queue.shift
+      level_order(queue, &block)
+      queue
+    else
+      result = []
+      level_order { |node| result << node.data }
+      result
+    end
   end
 
 end
@@ -163,5 +169,4 @@ new_tree.pretty_print
 # puts "Removing #{rmv}..."
 # new_tree.delete(rmv)
 new_tree.pretty_print
-new_tree.level_order { |node| node.data += 5}
-new_tree.pretty_print
+p new_tree.level_order
