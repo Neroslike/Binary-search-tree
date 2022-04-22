@@ -39,6 +39,12 @@ class Node
   def <=>(other)
     data <=> other.data
   end
+  
+  def leaf?
+    return true if right.nil? && left.nil?
+
+    false
+  end
 end
 
 class Tree
@@ -148,7 +154,7 @@ class Tree
 
   def inorder(root = @root, stack = [], result = [], &block)
     return nil if root.nil?
-    
+
     if inorder(root.left, stack << root, result, &block).nil?
       block.call(stack[-1]) if block_given?
       result << stack.pop.data
@@ -180,20 +186,48 @@ class Tree
     result << root.data
     result
   end
+
+  def height(root = @root, height = 0)
+    return -1 if root.nil?
+    left = height(root.left)
+    right = height(root.right)
+    height += [left, right].max + 1
+    height
+  end
+
+  def depth(node, root = @root, depth = 0)
+    binding.pry
+    return -1 if root.nil?
+    return depth if root == node
+
+    left = depth(node, root.left)
+    right = depth(node, root.right)
+    if left > -1
+      left + 1
+    elsif right > -1
+      right + 1
+    else
+      -1
+    end
+  end
+
+  def balanced?(root = @root)
+    return nil if root.nil?
+    left = height(root.left)
+    right = height(root.right)
+    heights = [left, right]
+    diff = heights.max - heights.min
+    if diff > 1
+      false
+    else
+      true
+    end
+  end
+
+  def rebalance
+    return nil if @root.nil?
+    arr = inorder
+    @root = build_tree(arr)
+  end
 end
-# arr = Array.new(10) { rand(1...200) }
-arr = [8, 9, 20, 60, 100, 800]
-new_tree = Tree.new(arr)
-new_tree.pretty_print
-rnd = 50
-puts "Inserting #{rnd}..."
-new_tree.insert(rnd)
-new_tree.insert(10)
-# new_tree.pretty_print
-# rmv = arr.sample
-# puts "Removing #{rmv}..."
-# new_tree.delete(rmv)
-# new_tree.level_order { |node| node.right.data += 5 unless node.right.nil?}
-new_tree.pretty_print 
-p new_tree.postorder { |node| node.right.data += 5 unless node.right.nil?}
-new_tree.pretty_print
+
