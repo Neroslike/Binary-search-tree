@@ -146,13 +146,9 @@ class Tree
     end
   end
 
-  #Add root to the stack, if it has a left node, call inorder to it
-  #If no more left nodes are present, pop last value of stack to result
-  #If that value has a right node, add value to stack after popping
-  #return result if stack is empty
   def inorder(root = @root, stack = [], result = [], &block)
-
     return nil if root.nil?
+    
     if inorder(root.left, stack << root, result, &block).nil?
       block.call(stack[-1]) if block_given?
       result << stack.pop.data
@@ -163,6 +159,26 @@ class Tree
       result
     end
     result if stack.empty?
+  end
+
+  def preorder(root = @root, result = [], &block)
+    return nil if root.nil?
+
+    block.call(root) if block_given?
+    result << root.data
+    preorder(root.left, result, &block)
+    preorder(root.right, result, &block)
+    result
+  end
+
+  def postorder(root = @root, result = [], &block)
+    return nil if root.nil?
+
+    postorder(root.left, result, &block)
+    postorder(root.right, result, &block)
+    block.call(root) if block_given?
+    result << root.data
+    result
   end
 end
 # arr = Array.new(10) { rand(1...200) }
@@ -178,6 +194,6 @@ new_tree.insert(10)
 # puts "Removing #{rmv}..."
 # new_tree.delete(rmv)
 # new_tree.level_order { |node| node.right.data += 5 unless node.right.nil?}
-new_tree.pretty_print
-p new_tree.inorder 
 new_tree.pretty_print 
+p new_tree.postorder { |node| node.right.data += 5 unless node.right.nil?}
+new_tree.pretty_print
